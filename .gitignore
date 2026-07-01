@@ -1,0 +1,6 @@
+.clasp.json
+.clasprc.json
+node_modules/
+.DS_Store
+Code_backup.js
+*.log
