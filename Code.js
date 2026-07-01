@@ -384,3 +384,107 @@ function postEgoSummaryToTestChannel() {
 
   return "Test ego summary posted.";
 }
+
+
+/***********************
+ * EGO EOD FUNCTIONS
+ * These are available for manual use or future triggers.
+ * They are NOT automatically scheduled unless triggers are added manually.
+ ***********************/
+
+const EGO_EOD_CHANNEL_ID_MANUAL = "C0AKFH5A406"; // v2d-ego-data-collection
+const EGO_FORM_ID_PROP_MANUAL = "EGO_EOD_FORM_ID";
+const EGO_FORM_URL_PROP_MANUAL = "EGO_EOD_FORM_URL";
+
+
+function createEgoEodForm() {
+  let formId = getProp(EGO_FORM_ID_PROP_MANUAL);
+
+  if (formId) {
+    const existingForm = FormApp.openById(formId);
+    setProp(EGO_FORM_URL_PROP_MANUAL, existingForm.getPublishedUrl());
+    return existingForm.getPublishedUrl();
+  }
+
+  const form = FormApp.create("EGO EOD Update Form");
+
+  form.setDescription("Submit your daily EGO EOD update.");
+  form.setCollectEmail(false);
+  form.setAllowResponseEdits(true);
+  form.setLimitOneResponsePerUser(false);
+
+  form.addTextItem()
+    .setTitle(Q_NAME)
+    .setRequired(true);
+
+  form.addParagraphTextItem()
+    .setTitle(Q_COMPLETED)
+    .setRequired(true);
+
+  form.addParagraphTextItem()
+    .setTitle(Q_TOMORROW)
+    .setRequired(true);
+
+  form.addMultipleChoiceItem()
+    .setTitle(Q_BLOCKER)
+    .setRequired(true)
+    .setChoiceValues(["No", "Yes"]);
+
+  form.addParagraphTextItem()
+    .setTitle(Q_BLOCKER_DETAILS)
+    .setRequired(false);
+
+  form.addParagraphTextItem()
+    .setTitle(Q_HELP)
+    .setRequired(false);
+
+  form.addMultipleChoiceItem()
+    .setTitle(Q_STATUS)
+    .setRequired(true)
+    .setChoiceValues(["Green", "Yellow", "Red"]);
+
+  setProp(EGO_FORM_ID_PROP_MANUAL, form.getId());
+  setProp(EGO_FORM_URL_PROP_MANUAL, form.getPublishedUrl());
+
+  return form.getPublishedUrl();
+}
+
+
+function getEgoFormUrl() {
+  let formUrl = getProp(EGO_FORM_URL_PROP_MANUAL);
+
+  if (!formUrl) {
+    formUrl = createEgoEodForm();
+  }
+
+  return formUrl;
+}
+
+
+function postEgoEodReminder() {
+  const formUrl = getEgoFormUrl();
+
+  slackApi("chat.postMessage", {
+    channel: EGO_EOD_CHANNEL_ID_MANUAL,
+    text:
+      ":spiral_calendar_pad: *EGO EOD Reminder*\n" +
+      "Please submit your EGO EOD update here:\n" +
+      formUrl
+  });
+
+  return "Ego EOD reminder posted.";
+}
+
+
+function postEgoEodSummary() {
+  const formId = getProp(EGO_FORM_ID_PROP_MANUAL);
+  const updates = parseResponsesForFormId(formId, todayStr());
+  const summary = generateSummaryFromUpdates("EGO EOD Summary", todayStr(), updates);
+
+  slackApi("chat.postMessage", {
+    channel: EGO_EOD_CHANNEL_ID_MANUAL,
+    text: summary
+  });
+
+  return "Ego EOD summary posted.";
+}
