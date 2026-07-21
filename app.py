@@ -25,10 +25,10 @@ SLACK_APP_TOKEN = os.getenv("SLACK_APP_TOKEN")
 EOD_CHANNEL_ID = os.getenv("EOD_CHANNEL_ID")
 TIMEZONE = os.getenv("TIMEZONE", "Asia/Kolkata")
 
-EOD_REMINDER_HOUR = int(os.getenv("EOD_REMINDER_HOUR", "17"))
+EOD_REMINDER_HOUR = int(os.getenv("EOD_REMINDER_HOUR", "18"))
 EOD_REMINDER_MINUTE = int(os.getenv("EOD_REMINDER_MINUTE", "0"))
 
-EOD_SUMMARY_HOUR = int(os.getenv("EOD_SUMMARY_HOUR", "18"))
+EOD_SUMMARY_HOUR = int(os.getenv("EOD_SUMMARY_HOUR", "21"))
 EOD_SUMMARY_MINUTE = int(os.getenv("EOD_SUMMARY_MINUTE", "0"))
 
 app = App(token=SLACK_BOT_TOKEN)
@@ -564,7 +564,7 @@ def start_scheduler():
 
     print("Scheduler started.")
     print(f"Reminder time: {EOD_REMINDER_HOUR}:{EOD_REMINDER_MINUTE:02d} {TIMEZONE}")
-    print(f"Summary time: {EOD_SUMMARY_HOUR}:{EOD_SUMMARY_MINUTE:02d} {TIMEZONE}")
+    print(f"Report time: {EOD_SUMMARY_HOUR}:{EOD_SUMMARY_MINUTE:02d} {TIMEZONE}")
 
 
 def validate_env():
